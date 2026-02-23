@@ -73,6 +73,8 @@ import 'sitelen-layer-plugin/styles.css';
 
 const profiles = createTokiPonaLocaleProfiles({
   container: '#tp-content-scope',
+  toggleMount: '#sitelen-layer-toggle-mount',
+  storageKey: 'toki-free-kit:sitelen-layer',
   tpPathPrefix: '/tp',
   nonTpPathPrefix: '/en',
   debug: true,
@@ -251,6 +253,10 @@ import 'sitelen-layer-plugin/styles.css';
 3. Git dependency only if your release flow includes built `dist` artifacts.
 
 If bundler resolution fails in CI, first check your dependency source and that `dist/` is available to consumers.
+
+Integration checklist and Next.js header-mount recipe:
+
+- [`docs/INTEGRATION_PLAYBOOK.md`](/Users/antonbiletskiy-volokh/Downloads/Projects/sitelen-layer-plugin/docs/INTEGRATION_PLAYBOOK.md)
 
 ## Key Config (selected)
 

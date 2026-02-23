@@ -25,4 +25,19 @@ describe('presets', () => {
     expect(profiles[0].match?.pathnamePrefix).toBe('/tok');
     expect(profiles[1].match?.pathnamePrefix).toBe('/eng');
   });
+
+  it('passes toggle mount and storage key through both profiles', () => {
+    const profiles = createTokiPonaLocaleProfiles({
+      container: '#tp-content',
+      toggleMount: '#header-toggle',
+      storageKey: 'toki-free-layer',
+      nonTpShowToggle: true
+    });
+
+    expect(profiles[0].config.toggleMount).toBe('#header-toggle');
+    expect(profiles[1].config.toggleMount).toBe('#header-toggle');
+    expect(profiles[0].config.storageKey).toBe('toki-free-layer');
+    expect(profiles[1].config.storageKey).toBe('toki-free-layer');
+    expect(profiles[1].config.showToggle).toBe(true);
+  });
 });

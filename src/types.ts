@@ -132,9 +132,12 @@ export interface TokiPonaLocalePresetOptions {
   tpPathPrefix?: string;
   nonTpPathPrefix?: string;
   container: string;
+  toggleMount?: string;
+  storageKey?: string;
   threshold?: number;
   debug?: boolean;
   debugOverlay?: boolean;
+  nonTpShowToggle?: boolean;
   mutationObserver?: MutationObserverConfig;
   sitelenPona?: SitelenPonaConfig;
 }

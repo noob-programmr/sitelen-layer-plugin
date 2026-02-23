@@ -22,6 +22,8 @@ export function createTokiPonaLocaleProfiles(options: TokiPonaLocalePresetOption
       match: { pathnamePrefix: tpPathPrefix },
       config: {
         container: options.container,
+        toggleMount: options.toggleMount,
+        storageKey: options.storageKey,
         layers: ['latin', 'sitelen-pona', 'sitelen-emoji'],
         defaultLayer: 'latin',
         requireDominantTokiPona: true,
@@ -42,9 +44,11 @@ export function createTokiPonaLocaleProfiles(options: TokiPonaLocalePresetOption
       match: { pathnamePrefix: nonTpPathPrefix },
       config: {
         container: options.container,
+        toggleMount: options.toggleMount,
+        storageKey: options.storageKey,
         layers: ['latin'],
         defaultLayer: 'latin',
-        showToggle: false,
+        showToggle: options.nonTpShowToggle ?? false,
         requireDominantTokiPona: true,
         debug: false,
         debugOverlay: false

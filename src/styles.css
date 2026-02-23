@@ -1,0 +1,105 @@
+:root {
+  --slp-toggle-bg: rgba(10, 10, 10, 0.88);
+  --slp-toggle-border: rgba(255, 255, 255, 0.18);
+  --slp-toggle-fg: #ffffff;
+  --slp-toggle-active-bg: #ffffff;
+  --slp-toggle-active-fg: #111111;
+  --slp-font-sitelen-pona: 'nasin-sitelen-pu', 'Noto Sans', sans-serif;
+  --slp-debug-bg: rgba(18, 20, 24, 0.92);
+  --slp-debug-fg: #f1f5fb;
+}
+
+.slp-toggle {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2147483647;
+  display: inline-flex;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--slp-toggle-border);
+  background: var(--slp-toggle-bg);
+  backdrop-filter: blur(8px);
+}
+
+.slp-toggle--mounted {
+  position: static;
+}
+
+.slp-toggle__btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--slp-toggle-fg);
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.slp-toggle__btn:hover {
+  border-color: var(--slp-toggle-border);
+}
+
+.slp-toggle__btn.is-active {
+  color: var(--slp-toggle-active-fg);
+  background: var(--slp-toggle-active-bg);
+}
+
+.slp-toggle__btn.is-disabled,
+.slp-toggle__btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.slp-layer--sitelen-pona {
+  font-family: var(--slp-font-sitelen-pona);
+  line-height: 1.35;
+  text-rendering: optimizeLegibility;
+  font-variant-ligatures: common-ligatures discretionary-ligatures;
+}
+
+.slp-layer--sitelen-pona :is(code, pre, textarea, input, select, option) {
+  font-family: inherit;
+  font-variant-ligatures: normal;
+}
+
+.slp-debug-overlay {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 2147483646;
+  width: min(320px, calc(100vw - 32px));
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--slp-debug-bg);
+  color: var(--slp-debug-fg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  pointer-events: auto;
+}
+
+.slp-debug-overlay__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.slp-debug-overlay__collapse {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.slp-debug-overlay__content {
+  padding: 10px;
+  white-space: pre-wrap;
+  pointer-events: none;
+}

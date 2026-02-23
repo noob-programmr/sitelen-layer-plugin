@@ -45,6 +45,7 @@ describe('presets', () => {
     const profiles = createTokiPonaLocaleProfiles({
       container: '#tp-content',
       toggleMode: 'auto',
+      toggleSize: 'lg',
       toggleLabels: {
         latin: 'TP',
         'sitelen-emoji': { text: '🙂', ariaLabel: 'Sitelen emoji' }
@@ -54,6 +55,8 @@ describe('presets', () => {
 
     expect(profiles[0].config.toggleMode).toBe('auto');
     expect(profiles[1].config.toggleMode).toBe('auto');
+    expect(profiles[0].config.toggleSize).toBe('lg');
+    expect(profiles[1].config.toggleSize).toBe('lg');
     expect(profiles[0].config.toggleLabels).toEqual({
       latin: 'TP',
       'sitelen-emoji': { text: '🙂', ariaLabel: 'Sitelen emoji' }

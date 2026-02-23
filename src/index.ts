@@ -38,6 +38,7 @@ export type {
   ToggleLabelSpec,
   ToggleLabels,
   ToggleMode,
+  ToggleSize,
   TokiPonaLocalePresetOptions
 } from './types';
 export type { EmojiEntry, NormalizedEmojiMapping } from './emoji/normalizeEmojiMapping';

@@ -25,7 +25,8 @@ import type {
   SitelenPonaConfig,
   SpaNavigationConfig,
   ToggleLabels,
-  ToggleMode
+  ToggleMode,
+  ToggleSize
 } from './types';
 
 const DEFAULT_LAYERS: SitelenLayer[] = ['latin', 'sitelen-pona', 'sitelen-emoji'];
@@ -34,6 +35,7 @@ const DEFAULT_DEBOUNCE_MS = 200;
 const DEFAULT_MAX_BATCH_NODES = 250;
 const DEFAULT_NAVIGATION_REFRESH_DELAY = 60;
 const DEFAULT_TOGGLE_MODE: ToggleMode = 'auto';
+const DEFAULT_TOGGLE_SIZE: ToggleSize = 'md';
 const PLUGIN_UI_SELECTOR = '[data-sitelen-layer-ui]';
 
 const HISTORY_PATCH_MARKER = '__sitelenLayerPatched__';
@@ -103,6 +105,10 @@ function resolveElement(target: string | Element | undefined): Element | null {
 
 function isValidLayer(value: string | undefined): value is SitelenLayer {
   return value === 'latin' || value === 'sitelen-pona' || value === 'sitelen-emoji';
+}
+
+function isValidToggleSize(value: string | undefined): value is ToggleSize {
+  return value === 'sm' || value === 'md' || value === 'lg';
 }
 
 function describeContainer(container: Element, configuredTarget?: string | Element): string {
@@ -187,6 +193,7 @@ interface ResolvedConfig {
   showToggle: boolean;
   toggleMount?: string | Element;
   toggleMode: ToggleMode;
+  toggleSize: ToggleSize;
   toggleLabels?: ToggleLabels;
   emojiExcludeSelectors: string[];
   excludeSelectors: string[];
@@ -278,6 +285,7 @@ export class SitelenLayerPlugin {
       showToggle: config.showToggle ?? true,
       toggleMount: config.toggleMount,
       toggleMode: config.toggleMode ?? DEFAULT_TOGGLE_MODE,
+      toggleSize: isValidToggleSize(config.toggleSize) ? config.toggleSize : DEFAULT_TOGGLE_SIZE,
       toggleLabels: config.toggleLabels,
       emojiExcludeSelectors: config.emojiExcludeSelectors ?? [],
       excludeSelectors: config.excludeSelectors ?? [],
@@ -405,6 +413,7 @@ export class SitelenLayerPlugin {
       sitelenPonaRenderMode: this.config.sitelenPona.renderStrategy,
       sitelenPonaWarning: this.sitelenPonaWarning,
       toggleMountMode: this.toggleMountMode,
+      toggleSize: this.config.toggleSize,
       toggleMountedIn: this.toggleMountedIn,
       emojiReplacementCount: this.emojiReplacementCount,
       emojiCoverageRatio: this.emojiWordTokenCount > 0 ? this.emojiReplacementCount / this.emojiWordTokenCount : 0,
@@ -545,6 +554,7 @@ export class SitelenLayerPlugin {
       disabledLayers: Array.from(this.disabledLayers),
       mount: this.toggleMount ?? undefined,
       mode: this.config.toggleMode,
+      size: this.config.toggleSize,
       mountedIn: this.toggleMountedIn,
       labels: this.config.toggleLabels,
       onChange: (layer) => {

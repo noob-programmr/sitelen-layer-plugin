@@ -178,6 +178,7 @@ createSitelenLayerPlugin({
   layers: ['latin', 'sitelen-pona', 'sitelen-emoji'],
   toggleMount: '#header-lang-area',
   toggleMode: 'auto',
+  toggleSize: 'lg',
   toggleLabels: {
     latin: 'TP',
     'sitelen-pona': { text: 'SP', ariaLabel: 'Sitelen pona layer' },
@@ -201,15 +202,21 @@ createSitelenLayerPlugin({
 1. `'auto'` (default): inline when `toggleMount` exists, otherwise floating.
 2. `'inline'`: tries inline mount, falls back to floating if target is missing.
 3. `'floating'`: always bottom-right floating widget.
+- `toggleSize`: `'sm' | 'md' | 'lg'` (default: `'md'`).
 - `toggleLabels`: per-layer custom button content/aria/title/className.
+- Default labels (when `toggleLabels` is not provided):
+1. `latin`: `TP`
+2. `sitelen-pona`: `SP`
+3. `sitelen-emoji`: `🙂`
 
 Example:
 
 ```ts
 createSitelenLayerPlugin({
   container: '#tp-content',
-  toggleMount: '#header-toggle',
+  toggleMount: '#header-toggle', // place next to EN/TP switcher
   toggleMode: 'auto',
+  toggleSize: 'lg',
   toggleLabels: {
     latin: 'TP',
     'sitelen-pona': { text: 'SP', ariaLabel: 'Sitelen pona mode' },
@@ -299,7 +306,7 @@ Integration checklist and Next.js header-mount recipe:
 
 - `threshold` (default `0.7`)
 - `requireDominantTokiPona` (default `true`)
-- `toggleMount`, `toggleMode`, `toggleLabels`
+- `toggleMount`, `toggleMode`, `toggleSize`, `toggleLabels`
 - `mutationObserver.enabled` / `mutationObserver.incremental`
 - `spaNavigation.enabled`
 - `emojiExcludeSelectors` (keep nav/header/logo untouched in emoji mode)

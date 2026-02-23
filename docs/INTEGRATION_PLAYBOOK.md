@@ -98,6 +98,7 @@ const profiles = createTokiPonaLocaleProfiles({
   nonTpPathPrefix: '/en',
   toggleMount: '#sitelen-layer-toggle-mount',
   toggleMode: 'auto',
+  toggleSize: 'lg',
   toggleLabels: {
     latin: 'TP',
     'sitelen-pona': { text: 'SP', ariaLabel: 'Sitelen pona mode' },
@@ -125,5 +126,6 @@ createSitelenLayerPluginFromProfiles(profiles).init();
 Operational defaults:
 
 - `toggleMode: 'auto'` keeps inline header mount when available, floating fallback otherwise.
+- `toggleSize: 'lg'` improves readability for header/nav integrations.
 - `emojiExcludeSelectors` protects nav/header/logo from unnecessary replacement noise.
 - `renderStrategy: 'font-only'` is stable MVP styling path; treat `transform` as future conversion path.

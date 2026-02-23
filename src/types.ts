@@ -1,5 +1,6 @@
 export type SitelenLayer = 'latin' | 'sitelen-pona' | 'sitelen-emoji';
 export type ToggleMode = 'floating' | 'inline' | 'auto';
+export type ToggleSize = 'sm' | 'md' | 'lg';
 
 export type LayerModeSource =
   | 'default'
@@ -35,6 +36,7 @@ export interface PluginDiagnostics extends Diagnostics {
   sitelenPonaRenderMode: 'font-only' | 'transform';
   sitelenPonaWarning?: string;
   toggleMountMode: 'floating' | 'inline';
+  toggleSize: ToggleSize;
   toggleMountedIn?: string;
   emojiReplacementCount: number;
   emojiCoverageRatio: number;
@@ -91,6 +93,7 @@ export interface SitelenLayerPluginConfig {
   showToggle?: boolean;
   toggleMount?: string | Element;
   toggleMode?: ToggleMode;
+  toggleSize?: ToggleSize;
   toggleLabels?: ToggleLabels;
   emojiExcludeSelectors?: string[];
   excludeSelectors?: string[];
@@ -153,6 +156,7 @@ export interface TokiPonaLocalePresetOptions {
   container: string;
   toggleMount?: string;
   toggleMode?: ToggleMode;
+  toggleSize?: ToggleSize;
   toggleLabels?: ToggleLabels;
   emojiExcludeSelectors?: string[];
   storageKey?: string;

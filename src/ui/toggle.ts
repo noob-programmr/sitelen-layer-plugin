@@ -1,10 +1,11 @@
-import type { SitelenLayer, ToggleLabelSpec, ToggleLabels, ToggleMode } from '../types';
+import type { SitelenLayer, ToggleLabelSpec, ToggleLabels, ToggleMode, ToggleSize } from '../types';
 
 interface ToggleOptions {
   layers: SitelenLayer[];
   activeLayer: SitelenLayer;
   mount?: Element;
   mode: ToggleMode;
+  size: ToggleSize;
   mountedIn?: string;
   labels?: ToggleLabels;
   disabledLayers?: SitelenLayer[];
@@ -12,9 +13,9 @@ interface ToggleOptions {
 }
 
 const SYMBOLS: Record<SitelenLayer, string> = {
-  latin: '◻︎',
-  'sitelen-pona': '⌘',
-  'sitelen-emoji': '😊'
+  latin: 'TP',
+  'sitelen-pona': 'SP',
+  'sitelen-emoji': '🙂'
 };
 
 const LABELS: Record<SitelenLayer, string> = {
@@ -31,6 +32,7 @@ export class LayerToggle {
   constructor(private readonly options: ToggleOptions) {
     this.root = document.createElement('div');
     this.root.className = 'slp-toggle';
+    this.root.classList.add(`slp-toggle--size-${this.options.size}`);
     this.root.setAttribute('data-sitelen-layer-ui', 'toggle');
     this.root.setAttribute('role', 'group');
     this.root.setAttribute('aria-label', 'Sitelen layer switcher');

@@ -57,6 +57,7 @@ export class DebugOverlay {
       `Layer: ${diagnostics.activeLayer}`,
       `Layer source: ${diagnostics.modeSource}`,
       `Toggle mode: ${diagnostics.toggleMountMode}`,
+      `Toggle size: ${diagnostics.toggleSize}`,
       diagnostics.toggleMountedIn ? `Toggle mount: ${diagnostics.toggleMountedIn}` : '',
       `Container: ${diagnostics.containerInfo}`,
       `Profile: ${diagnostics.matchedProfileId ?? diagnostics.profileId ?? 'none'}`,

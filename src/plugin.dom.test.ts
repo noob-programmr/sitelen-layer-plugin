@@ -142,6 +142,31 @@ describe('plugin dom integration', () => {
     expect(toggle).not.toBeNull();
     expect(toggle.dataset.slpToggleMode).toBe('inline');
     expect(plugin.getDiagnostics().toggleMountMode).toBe('inline');
+    expect(plugin.getDiagnostics().toggleSize).toBe('md');
+
+    plugin.destroy();
+  });
+
+  it('uses predictable default toggle labels', () => {
+    document.body.innerHTML = `
+      <div id="app">
+        <p>toki pona li pona tawa mi. jan pona li toki pona.</p>
+      </div>
+    `;
+
+    const plugin = createSitelenLayerPlugin({
+      container: '#app',
+      sitelenPona: { enabled: true, renderStrategy: 'transform' }
+    });
+
+    plugin.init();
+
+    const latinBtn = document.querySelector('button[data-layer="latin"]') as HTMLButtonElement;
+    const spBtn = document.querySelector('button[data-layer="sitelen-pona"]') as HTMLButtonElement;
+    const emojiBtn = document.querySelector('button[data-layer="sitelen-emoji"]') as HTMLButtonElement;
+    expect(latinBtn.textContent).toBe('TP');
+    expect(spBtn.textContent).toBe('SP');
+    expect(emojiBtn.textContent).toBe('🙂');
 
     plugin.destroy();
   });
@@ -222,6 +247,29 @@ describe('plugin dom integration', () => {
 
     plugin.init();
     expect(plugin.getDiagnostics().sitelenPonaRenderMode).toBe('transform');
+    plugin.destroy();
+  });
+
+  it('applies header-friendly toggle size class', () => {
+    document.body.innerHTML = `
+      <header><div id="toggle-mount"></div></header>
+      <div id="app">
+        <p>toki pona li pona tawa mi. jan pona li toki pona.</p>
+      </div>
+    `;
+
+    const plugin = createSitelenLayerPlugin({
+      container: '#app',
+      toggleMount: '#toggle-mount',
+      toggleMode: 'auto',
+      toggleSize: 'lg'
+    });
+
+    plugin.init();
+
+    const toggle = document.querySelector('[data-sitelen-layer-ui="toggle"]') as HTMLElement;
+    expect(toggle.classList.contains('slp-toggle--size-lg')).toBe(true);
+    expect(plugin.getDiagnostics().toggleSize).toBe('lg');
     plugin.destroy();
   });
 });

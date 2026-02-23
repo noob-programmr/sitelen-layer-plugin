@@ -80,3 +80,50 @@ Check:
 - `matchedProfileReason`
 - `sitelenPonaFontReady`
 - `observerStats`
+
+## 8) Automation-Ready Baseline Config
+
+Use this as a default integration template in new site-owner projects to avoid repeated UX issues:
+
+```ts
+import {
+  createSitelenLayerPluginFromProfiles,
+  createTokiPonaLocaleProfiles
+} from 'sitelen-layer-plugin';
+import 'sitelen-layer-plugin/styles.css';
+
+const profiles = createTokiPonaLocaleProfiles({
+  container: '#tp-content',
+  tpPathPrefix: '/tp',
+  nonTpPathPrefix: '/en',
+  toggleMount: '#sitelen-layer-toggle-mount',
+  toggleMode: 'auto',
+  toggleLabels: {
+    latin: 'TP',
+    'sitelen-pona': { text: 'SP', ariaLabel: 'Sitelen pona mode' },
+    'sitelen-emoji': { text: '🙂', ariaLabel: 'Sitelen emoji mode' }
+  },
+  emojiExcludeSelectors: ['header', 'nav', '.site-logo'],
+  debug: true,
+  debugOverlay: true,
+  mutationObserver: {
+    enabled: true,
+    incremental: true,
+    observeAttributes: false,
+    debounceMs: 140
+  },
+  sitelenPona: {
+    enabled: true,
+    renderStrategy: 'font-only',
+    fontCssUrl: 'https://cdn.jsdelivr.net/gh/ETBCOR/nasin-sitelen-pu@latest/nasin-sitelen-pu.css'
+  }
+});
+
+createSitelenLayerPluginFromProfiles(profiles).init();
+```
+
+Operational defaults:
+
+- `toggleMode: 'auto'` keeps inline header mount when available, floating fallback otherwise.
+- `emojiExcludeSelectors` protects nav/header/logo from unnecessary replacement noise.
+- `renderStrategy: 'font-only'` is stable MVP styling path; treat `transform` as future conversion path.

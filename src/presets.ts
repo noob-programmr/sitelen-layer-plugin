@@ -23,6 +23,9 @@ export function createTokiPonaLocaleProfiles(options: TokiPonaLocalePresetOption
       config: {
         container: options.container,
         toggleMount: options.toggleMount,
+        toggleMode: options.toggleMode,
+        toggleLabels: options.toggleLabels,
+        emojiExcludeSelectors: options.emojiExcludeSelectors,
         storageKey: options.storageKey,
         layers: ['latin', 'sitelen-pona', 'sitelen-emoji'],
         defaultLayer: 'latin',
@@ -45,6 +48,9 @@ export function createTokiPonaLocaleProfiles(options: TokiPonaLocalePresetOption
       config: {
         container: options.container,
         toggleMount: options.toggleMount,
+        toggleMode: options.toggleMode,
+        toggleLabels: options.toggleLabels,
+        emojiExcludeSelectors: options.emojiExcludeSelectors,
         storageKey: options.storageKey,
         layers: ['latin'],
         defaultLayer: 'latin',

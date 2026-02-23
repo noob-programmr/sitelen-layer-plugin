@@ -1,4 +1,5 @@
 export type SitelenLayer = 'latin' | 'sitelen-pona' | 'sitelen-emoji';
+export type ToggleMode = 'floating' | 'inline' | 'auto';
 
 export type LayerModeSource =
   | 'default'
@@ -31,7 +32,12 @@ export interface PluginDiagnostics extends Diagnostics {
   availableLayers: SitelenLayer[];
   ignoredCandidates: number;
   sitelenPonaFontReady: boolean;
+  sitelenPonaRenderMode: 'font-only' | 'transform';
   sitelenPonaWarning?: string;
+  toggleMountMode: 'floating' | 'inline';
+  toggleMountedIn?: string;
+  emojiReplacementCount: number;
+  emojiCoverageRatio: number;
   matchedProfileId?: string | null;
   matchedProfileReason?: string;
   profileId?: string | null;
@@ -51,6 +57,16 @@ export interface SitelenPonaConfig {
   className?: string;
   renderStrategy?: 'font-only' | 'transform';
 }
+
+export interface ToggleLabelSpec {
+  text?: string;
+  ariaLabel?: string;
+  title?: string;
+  className?: string;
+}
+
+export type ToggleLayerLabel = string | ToggleLabelSpec;
+export type ToggleLabels = Partial<Record<SitelenLayer, ToggleLayerLabel>>;
 
 export interface MutationObserverConfig {
   enabled?: boolean;
@@ -74,6 +90,9 @@ export interface SitelenLayerPluginConfig {
   defaultLayer?: SitelenLayer;
   showToggle?: boolean;
   toggleMount?: string | Element;
+  toggleMode?: ToggleMode;
+  toggleLabels?: ToggleLabels;
+  emojiExcludeSelectors?: string[];
   excludeSelectors?: string[];
   debug?: boolean;
   debugOverlay?: boolean;
@@ -133,6 +152,9 @@ export interface TokiPonaLocalePresetOptions {
   nonTpPathPrefix?: string;
   container: string;
   toggleMount?: string;
+  toggleMode?: ToggleMode;
+  toggleLabels?: ToggleLabels;
+  emojiExcludeSelectors?: string[];
   storageKey?: string;
   threshold?: number;
   debug?: boolean;

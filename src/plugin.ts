@@ -3,7 +3,7 @@ import { collectTextNodes, collectTextNodesInSubtree, isTextNodeAllowed } from '
 import { analyzeTokiPonaDominance } from './detector';
 import { resolveEligibility } from './eligibility';
 import { writeStoredLayer, readStoredLayer } from './storage';
-import { toSitelenEmoji } from './transformers/emoji';
+import { toSitelenEmojiWithStats } from './transformers/emoji';
 import {
   DEFAULT_SITELEN_PONA_FONT,
   applyContainerLayerClass,
@@ -23,7 +23,9 @@ import type {
   SitelenLayer,
   SitelenLayerPluginConfig,
   SitelenPonaConfig,
-  SpaNavigationConfig
+  SpaNavigationConfig,
+  ToggleLabels,
+  ToggleMode
 } from './types';
 
 const DEFAULT_LAYERS: SitelenLayer[] = ['latin', 'sitelen-pona', 'sitelen-emoji'];
@@ -31,6 +33,7 @@ const DEFAULT_STORAGE_KEY = 'sitelen-layer-plugin:layer';
 const DEFAULT_DEBOUNCE_MS = 200;
 const DEFAULT_MAX_BATCH_NODES = 250;
 const DEFAULT_NAVIGATION_REFRESH_DELAY = 60;
+const DEFAULT_TOGGLE_MODE: ToggleMode = 'auto';
 const PLUGIN_UI_SELECTOR = '[data-sitelen-layer-ui]';
 
 const HISTORY_PATCH_MARKER = '__sitelenLayerPatched__';
@@ -119,6 +122,27 @@ function describeContainer(container: Element, configuredTarget?: string | Eleme
   return container.tagName.toLowerCase();
 }
 
+function describeElement(target: string | Element | null | undefined): string | undefined {
+  if (!target) {
+    return undefined;
+  }
+
+  if (typeof target === 'string') {
+    return target;
+  }
+
+  if (target === document.body) {
+    return 'body';
+  }
+
+  const id = target.getAttribute('id');
+  if (id) {
+    return `${target.tagName.toLowerCase()}#${id}`;
+  }
+
+  return target.tagName.toLowerCase();
+}
+
 function defaultSitelenPonaConfig(config?: SitelenPonaConfig): Required<SitelenPonaConfig> {
   return {
     enabled: config?.enabled ?? true,
@@ -162,6 +186,9 @@ interface ResolvedConfig {
   defaultLayer: SitelenLayer;
   showToggle: boolean;
   toggleMount?: string | Element;
+  toggleMode: ToggleMode;
+  toggleLabels?: ToggleLabels;
+  emojiExcludeSelectors: string[];
   excludeSelectors: string[];
   debug: boolean;
   debugOverlay: boolean;
@@ -221,6 +248,10 @@ export class SitelenLayerPlugin {
   private ignoredCandidates = 0;
   private sitelenPonaFontReady = false;
   private sitelenPonaWarning: string | undefined;
+  private toggleMountMode: 'floating' | 'inline' = 'floating';
+  private toggleMountedIn: string | undefined;
+  private emojiReplacementCount = 0;
+  private emojiWordTokenCount = 0;
   private containerInfo = 'body';
   private lastUpdatedAt = new Date(0).toISOString();
 
@@ -246,6 +277,9 @@ export class SitelenLayerPlugin {
       defaultLayer: isValidLayer(config.defaultLayer) ? config.defaultLayer : 'latin',
       showToggle: config.showToggle ?? true,
       toggleMount: config.toggleMount,
+      toggleMode: config.toggleMode ?? DEFAULT_TOGGLE_MODE,
+      toggleLabels: config.toggleLabels,
+      emojiExcludeSelectors: config.emojiExcludeSelectors ?? [],
       excludeSelectors: config.excludeSelectors ?? [],
       debug: config.debug ?? false,
       debugOverlay: config.debugOverlay ?? false,
@@ -278,10 +312,16 @@ export class SitelenLayerPlugin {
 
     this.container = resolveElement(this.config.container) ?? document.body;
     this.toggleMount = resolveElement(this.config.toggleMount);
+    this.toggleMountedIn = describeElement(this.toggleMount ?? this.config.toggleMount);
+    this.toggleMountMode = this.resolveToggleMountMode();
 
     if (!this.container) {
       this.warnDebug('container not found; plugin init skipped');
       return;
+    }
+
+    if ((this.config.toggleMode === 'inline' || (this.config.toggleMode === 'auto' && this.config.toggleMount)) && !this.toggleMount) {
+      this.warnDebug('toggleMount target was not found; falling back to floating mode');
     }
 
     if (this.config.sitelenPona.enabled) {
@@ -326,6 +366,10 @@ export class SitelenLayerPlugin {
       }
     }
 
+    this.toggleMount = resolveElement(this.config.toggleMount);
+    this.toggleMountedIn = describeElement(this.toggleMount ?? this.config.toggleMount);
+    this.toggleMountMode = this.resolveToggleMountMode();
+
     this.observerStats.fullRefreshes += 1;
     this.performFullRefresh();
   }
@@ -358,7 +402,12 @@ export class SitelenLayerPlugin {
       availableLayers: [...this.availableLayers],
       ignoredCandidates: this.ignoredCandidates,
       sitelenPonaFontReady: this.sitelenPonaFontReady,
+      sitelenPonaRenderMode: this.config.sitelenPona.renderStrategy,
       sitelenPonaWarning: this.sitelenPonaWarning,
+      toggleMountMode: this.toggleMountMode,
+      toggleMountedIn: this.toggleMountedIn,
+      emojiReplacementCount: this.emojiReplacementCount,
+      emojiCoverageRatio: this.emojiWordTokenCount > 0 ? this.emojiReplacementCount / this.emojiWordTokenCount : 0,
       matchedProfileId: this.config.profileId ?? null,
       matchedProfileReason: this.config.profileMatchReason,
       profileId: this.config.profileId,
@@ -398,6 +447,7 @@ export class SitelenLayerPlugin {
     this.ignoredCandidates = collection.ignoredCandidates;
 
     this.syncTextNodesWithOriginals(this.textNodes, true);
+    this.updateEmojiCoverageStats(this.textNodes);
 
     const textForDetection = this.textNodes.map((node) => this.originalTextMap.get(node) ?? '').join(' ');
     const detectorResult = analyzeTokiPonaDominance(textForDetection, {
@@ -473,6 +523,16 @@ export class SitelenLayerPlugin {
   }
 
   private ensureToggle(): void {
+    const expectedMountMode = this.resolveToggleMountMode();
+    if (this.toggle) {
+      if (this.toggle.getMountedMode() !== expectedMountMode) {
+        this.toggle.destroy();
+        this.toggle = null;
+      } else {
+        this.toggleMountMode = expectedMountMode;
+      }
+    }
+
     if (this.toggle) {
       this.toggle.setDisabledLayers(Array.from(this.disabledLayers));
       this.toggle.setActiveLayer(this.currentLayer);
@@ -484,6 +544,9 @@ export class SitelenLayerPlugin {
       activeLayer: this.currentLayer,
       disabledLayers: Array.from(this.disabledLayers),
       mount: this.toggleMount ?? undefined,
+      mode: this.config.toggleMode,
+      mountedIn: this.toggleMountedIn,
+      labels: this.config.toggleLabels,
       onChange: (layer) => {
         const appliedLayer = this.applyLayer(layer, 'default');
         this.preferredLayer = appliedLayer;
@@ -492,6 +555,7 @@ export class SitelenLayerPlugin {
     });
 
     this.toggle.mount();
+    this.toggleMountMode = this.toggle.getMountedMode();
   }
 
   private destroyToggle(): void {
@@ -520,6 +584,8 @@ export class SitelenLayerPlugin {
 
       if (effectiveLayer === 'sitelen-emoji') {
         this.applyEmojiLayer(this.textNodes);
+      } else if (effectiveLayer === 'sitelen-pona' && this.config.sitelenPona.renderStrategy === 'transform') {
+        this.applySitelenPonaTransformLayer(this.textNodes);
       }
 
       applyContainerLayerClass(this.container, effectiveLayer, this.sitelenPonaClassName);
@@ -553,13 +619,34 @@ export class SitelenLayerPlugin {
   }
 
   private applyEmojiLayer(nodes: Text[]): void {
+    this.emojiReplacementCount = 0;
+    this.emojiWordTokenCount = 0;
+
     nodes.forEach((node) => {
+      if (this.isEmojiExcludedNode(node)) {
+        return;
+      }
+
       const source = this.originalTextMap.get(node);
       if (typeof source === 'string') {
-        const transformed = toSitelenEmoji(source);
+        const result = toSitelenEmojiWithStats(source);
+        this.emojiReplacementCount += result.replacedTokens;
+        this.emojiWordTokenCount += result.wordTokens;
+        const transformed = result.text;
         if (node.nodeValue !== transformed) {
           this.setTextNodeValue(node, transformed);
         }
+      }
+    });
+  }
+
+  private applySitelenPonaTransformLayer(nodes: Text[]): void {
+    // Placeholder hook for transform strategy. Current MVP keeps text unchanged.
+    // Implementations may provide token-to-glyph transform in a future release.
+    nodes.forEach((node) => {
+      const source = this.originalTextMap.get(node);
+      if (typeof source === 'string' && node.nodeValue !== source) {
+        this.setTextNodeValue(node, source);
       }
     });
   }
@@ -595,6 +682,14 @@ export class SitelenLayerPlugin {
         this.sitelenPonaWarning =
           'sitelen-pona disabled: nasin-sitelen-pu font is not detected. Configure sitelenPona.fontCssUrl or load font manually.';
         this.warnDebug(this.sitelenPonaWarning);
+      } else if (this.config.sitelenPona.renderStrategy === 'font-only') {
+        this.sitelenPonaWarning =
+          'sitelen-pona font-only mode applies styling and ligatures, but may not fully convert latin text into sitelen pona glyphs.';
+        this.warnDebug(this.sitelenPonaWarning);
+      } else if (this.config.sitelenPona.renderStrategy === 'transform') {
+        this.sitelenPonaWarning =
+          'sitelen-pona transform strategy is an architectural hook in v0.1.x; full token-to-glyph conversion is pending.';
+        this.warnDebug(this.sitelenPonaWarning);
       }
     }
 
@@ -611,6 +706,61 @@ export class SitelenLayerPlugin {
 
   private isLayerEnabled(layer: SitelenLayer): boolean {
     return this.availableLayers.includes(layer);
+  }
+
+  private resolveToggleMountMode(): 'floating' | 'inline' {
+    const mode = this.config.toggleMode;
+    if (mode === 'floating') {
+      return 'floating';
+    }
+
+    if (mode === 'inline') {
+      return this.toggleMount ? 'inline' : 'floating';
+    }
+
+    return this.toggleMount ? 'inline' : 'floating';
+  }
+
+  private isEmojiExcludedNode(node: Text): boolean {
+    if (this.config.emojiExcludeSelectors.length === 0) {
+      return false;
+    }
+
+    const element = node.parentElement;
+    if (!element) {
+      return false;
+    }
+
+    return this.config.emojiExcludeSelectors.some((selector) => {
+      try {
+        return Boolean(element.closest(selector));
+      } catch {
+        return false;
+      }
+    });
+  }
+
+  private updateEmojiCoverageStats(nodes: Text[]): void {
+    let replacedTokens = 0;
+    let wordTokens = 0;
+
+    nodes.forEach((node) => {
+      if (this.isEmojiExcludedNode(node)) {
+        return;
+      }
+
+      const source = this.originalTextMap.get(node);
+      if (typeof source !== 'string') {
+        return;
+      }
+
+      const stats = toSitelenEmojiWithStats(source);
+      replacedTokens += stats.replacedTokens;
+      wordTokens += stats.wordTokens;
+    });
+
+    this.emojiReplacementCount = replacedTokens;
+    this.emojiWordTokenCount = wordTokens;
   }
 
   private startObserving(): void {
@@ -788,9 +938,16 @@ export class SitelenLayerPlugin {
       this.isApplyingLayer = true;
       try {
         newNodes.forEach((node) => {
+          if (this.isEmojiExcludedNode(node)) {
+            return;
+          }
+
           const source = this.originalTextMap.get(node);
           if (typeof source === 'string') {
-            const transformed = toSitelenEmoji(source);
+            const result = toSitelenEmojiWithStats(source);
+            this.emojiReplacementCount += result.replacedTokens;
+            this.emojiWordTokenCount += result.wordTokens;
+            const transformed = result.text;
             if (node.nodeValue !== transformed) {
               this.setTextNodeValue(node, transformed);
             }
@@ -803,6 +960,7 @@ export class SitelenLayerPlugin {
 
     this.observerStats.incrementalUpdates += updatedCount;
     this.lastUpdatedAt = new Date().toISOString();
+    this.updateEmojiCoverageStats(this.textNodes);
 
     const diagnostics = this.getDiagnostics();
     this.config.onDiagnostics?.(diagnostics);

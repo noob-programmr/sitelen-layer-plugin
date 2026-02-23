@@ -35,6 +35,9 @@ export type {
   SitelenLayerProfileMatch,
   SitelenPonaConfig,
   SpaNavigationConfig,
+  ToggleLabelSpec,
+  ToggleLabels,
+  ToggleMode,
   TokiPonaLocalePresetOptions
 } from './types';
 export type { EmojiEntry, NormalizedEmojiMapping } from './emoji/normalizeEmojiMapping';

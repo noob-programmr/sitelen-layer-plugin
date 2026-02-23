@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { toSitelenEmoji } from './emoji';
+import { toSitelenEmoji, toSitelenEmojiWithStats } from './emoji';
 
 describe('emoji transformer', () => {
   it('replaces known tokens using generated mapping', () => {
@@ -17,5 +17,12 @@ describe('emoji transformer', () => {
 
   it('handles mixed-case words via lowercase normalization', () => {
     expect(toSitelenEmoji('JaN PoNa')).toBe('👤 👍');
+  });
+
+  it('reports replacement stats for diagnostics', () => {
+    const result = toSitelenEmojiWithStats('jan pona li');
+    expect(result.text).toContain('👤');
+    expect(result.replacedTokens).toBeGreaterThan(0);
+    expect(result.wordTokens).toBe(3);
   });
 });

@@ -17,7 +17,8 @@ import 'sitelen-layer-plugin/styles.css';
 const plugin = createSitelenLayerPlugin({
   container: '#tok-content',
   threshold: 0.7,
-  requireDominantTokiPona: true
+  requireDominantTokiPona: true,
+  toggleMode: 'auto'
 });
 
 plugin.init();
@@ -174,12 +175,45 @@ Important: `sitelen-layer-plugin` is a **display-layer plugin** for existing tok
 ```ts
 createSitelenLayerPlugin({
   container: '#tok-content',
+  layers: ['latin', 'sitelen-pona', 'sitelen-emoji'],
+  toggleMount: '#header-lang-area',
+  toggleMode: 'auto',
+  toggleLabels: {
+    latin: 'TP',
+    'sitelen-pona': { text: 'SP', ariaLabel: 'Sitelen pona layer' },
+    'sitelen-emoji': { text: '🙂', ariaLabel: 'Sitelen emoji layer' }
+  },
+  emojiExcludeSelectors: ['header', '.site-logo'],
   sitelenPona: {
     enabled: true,
     fontFamily: "'nasin-sitelen-pu', 'Noto Sans', sans-serif",
     fontCssUrl: 'https://example.com/fonts/nasin-sitelen-pu.css',
     className: 'my-sitelen-pona-layer',
     renderStrategy: 'font-only'
+  }
+}).init();
+```
+
+## Toggle Mount And Labels
+
+- `toggleMount`: selector or `Element` mount target.
+- `toggleMode`:
+1. `'auto'` (default): inline when `toggleMount` exists, otherwise floating.
+2. `'inline'`: tries inline mount, falls back to floating if target is missing.
+3. `'floating'`: always bottom-right floating widget.
+- `toggleLabels`: per-layer custom button content/aria/title/className.
+
+Example:
+
+```ts
+createSitelenLayerPlugin({
+  container: '#tp-content',
+  toggleMount: '#header-toggle',
+  toggleMode: 'auto',
+  toggleLabels: {
+    latin: 'TP',
+    'sitelen-pona': { text: 'SP', ariaLabel: 'Sitelen pona mode' },
+    'sitelen-emoji': { text: '😊', ariaLabel: 'Sitelen emoji mode' }
   }
 }).init();
 ```
@@ -206,6 +240,7 @@ Checklist:
 2. Check network panel for font/CSS responses.
 3. Confirm diagnostics shows `sitelenPonaFontReady: true`.
 4. Apply stronger CSS selector with custom class.
+5. In diagnostics, check `sitelenPonaRenderMode`.
 
 Example with stronger specificity:
 
@@ -217,6 +252,8 @@ Example with stronger specificity:
   font-variant-ligatures: common-ligatures discretionary-ligatures;
 }
 ```
+
+`font-only` note: this path is a styling/ligature pipeline. It does not guarantee full latin-to-glyph conversion on every site. Use it as the stable MVP path and tune CSS/font loading first.
 
 ## SPA / Observer Recommendations
 
@@ -262,9 +299,12 @@ Integration checklist and Next.js header-mount recipe:
 
 - `threshold` (default `0.7`)
 - `requireDominantTokiPona` (default `true`)
+- `toggleMount`, `toggleMode`, `toggleLabels`
 - `mutationObserver.enabled` / `mutationObserver.incremental`
 - `spaNavigation.enabled`
+- `emojiExcludeSelectors` (keep nav/header/logo untouched in emoji mode)
 - `sitelenPona.fontFamily`, `sitelenPona.fontCssUrl`, `sitelenPona.className`
+- `sitelenPona.renderStrategy` (`font-only` or `transform` hook)
 - `onDiagnostics`, `onLayerChange`, `onProfileMatch`
 
 ## Diagnostics
@@ -273,6 +313,9 @@ Integration checklist and Next.js header-mount recipe:
 
 - detection: `score`, `threshold`, `eligible`, `totalTokens`, `recognizedTokens`
 - layer state: `activeLayer`, `modeSource`, `availableLayers`
+- toggle state: `toggleMountMode`, `toggleMountedIn`
+- sitelen pona state: `sitelenPonaFontReady`, `sitelenPonaRenderMode`, `sitelenPonaWarning`
+- emoji state: `emojiReplacementCount`, `emojiCoverageRatio`
 - profile state: `profileId`, `matchedProfileId`, `matchedProfileReason`
 - observer state: `observerStats`
 - timing: `lastUpdatedAt`

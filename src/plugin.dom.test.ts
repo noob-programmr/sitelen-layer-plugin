@@ -119,4 +119,109 @@ describe('plugin dom integration', () => {
 
     plugin.destroy();
   });
+
+  it('mounts toggle inline when toggleMount is found', () => {
+    document.body.innerHTML = `
+      <header><div id="toggle-mount"></div></header>
+      <div id="app">
+        <p>toki pona li pona tawa mi. jan pona li toki pona.</p>
+      </div>
+    `;
+
+    const plugin = createSitelenLayerPlugin({
+      container: '#app',
+      toggleMount: '#toggle-mount',
+      toggleMode: 'auto',
+      sitelenPona: { enabled: false }
+    });
+
+    plugin.init();
+
+    const mount = document.querySelector('#toggle-mount') as HTMLElement;
+    const toggle = mount.querySelector('[data-sitelen-layer-ui="toggle"]') as HTMLElement;
+    expect(toggle).not.toBeNull();
+    expect(toggle.dataset.slpToggleMode).toBe('inline');
+    expect(plugin.getDiagnostics().toggleMountMode).toBe('inline');
+
+    plugin.destroy();
+  });
+
+  it('falls back to floating mode when inline mount is missing', () => {
+    document.body.innerHTML = `
+      <div id="app">
+        <p>toki pona li pona tawa mi. jan pona li toki pona.</p>
+      </div>
+    `;
+
+    const plugin = createSitelenLayerPlugin({
+      container: '#app',
+      toggleMount: '#missing',
+      toggleMode: 'inline',
+      sitelenPona: { enabled: false }
+    });
+
+    plugin.init();
+
+    const toggle = document.querySelector('[data-sitelen-layer-ui="toggle"]') as HTMLElement;
+    expect(toggle.dataset.slpToggleMode).toBe('floating');
+    expect(plugin.getDiagnostics().toggleMountMode).toBe('floating');
+
+    plugin.destroy();
+  });
+
+  it('supports custom toggle labels and layer-specific emoji excludes', () => {
+    document.body.innerHTML = `
+      <div id="app">
+        <header><p id="nav">toki pona li pona</p></header>
+        <main><p id="main">jan pona li toki</p></main>
+      </div>
+    `;
+
+    const plugin = createSitelenLayerPlugin({
+      container: '#app',
+      defaultLayer: 'sitelen-emoji',
+      sitelenPona: { enabled: false },
+      toggleLabels: {
+        latin: 'TP',
+        'sitelen-emoji': { text: '😄', ariaLabel: 'Sitelen emoji mode' }
+      },
+      emojiExcludeSelectors: ['header']
+    });
+
+    plugin.init();
+
+    const latinBtn = document.querySelector('button[data-layer="latin"]') as HTMLButtonElement;
+    const emojiBtn = document.querySelector('button[data-layer="sitelen-emoji"]') as HTMLButtonElement;
+    expect(latinBtn.textContent).toBe('TP');
+    expect(emojiBtn.textContent).toBe('😄');
+    expect(emojiBtn.getAttribute('aria-label')).toBe('Sitelen emoji mode');
+
+    const nav = document.querySelector('#nav') as HTMLElement;
+    const main = document.querySelector('#main') as HTMLElement;
+    expect(nav.textContent).toBe('toki pona li pona');
+    expect(main.textContent).toContain('👤');
+
+    const diagnostics = plugin.getDiagnostics();
+    expect(diagnostics.emojiReplacementCount).toBeGreaterThan(0);
+    expect(diagnostics.emojiCoverageRatio).toBeGreaterThan(0);
+
+    plugin.destroy();
+  });
+
+  it('reports sitelen pona render mode in diagnostics', () => {
+    document.body.innerHTML = `
+      <div id="app">
+        <p>toki pona li pona tawa mi. jan pona li toki pona.</p>
+      </div>
+    `;
+
+    const plugin = createSitelenLayerPlugin({
+      container: '#app',
+      sitelenPona: { enabled: true, renderStrategy: 'transform' }
+    });
+
+    plugin.init();
+    expect(plugin.getDiagnostics().sitelenPonaRenderMode).toBe('transform');
+    plugin.destroy();
+  });
 });

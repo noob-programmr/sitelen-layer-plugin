@@ -34,6 +34,9 @@ export interface PluginDiagnostics extends Diagnostics {
   ignoredCandidates: number;
   sitelenPonaFontReady: boolean;
   sitelenPonaRenderMode: 'font-only' | 'transform';
+  sitelenPonaReplacementCount: number;
+  sitelenPonaWordTokenCount: number;
+  sitelenPonaCoverageRatio: number | null;
   sitelenPonaWarning?: string;
   toggleMountMode: 'floating' | 'inline';
   toggleSize: ToggleSize;

@@ -150,19 +150,26 @@ plugin.init();
 
 Matching priority: highest `priority` wins among matched profiles.
 
-## Example: Real Project Integration
+## Tested Real Integration
 
 Project: **toki-free-kit (ABVX)**
 
 - Live TP locale: <https://toki-free.abvx.xyz/tp>
 - Repo: <https://github.com/markoblogo/toki-free-kit>
 
-What this integration demonstrates:
+Confirmed on live:
 
-- toki pona-dominant eligibility flow
-- layer switching (`latin` / `sitelen-pona` / `sitelen-emoji`)
-- profile-based activation for `/tp`
-- debug diagnostics during integration and tuning
+- header-mounted toggle (inline mount near locale switcher)
+- emoji transform on TP content, including header text
+- locale switcher exclusion (`EN/TP` stays unchanged)
+- `/en` route unaffected (no toggle, no transforms)
+- `sitelen-pona` currently uses `font-only` path (known limitation: no guaranteed full latin->glyph conversion)
+
+Runtime fingerprints used for verification:
+
+- toggle labels: `TP / SP / 🙂`
+- inline mount + size class: `slp-toggle--mounted`, `slp-toggle--size-lg`
+- diagnostics overlay fields: `Toggle mode`, `Toggle size`, `Toggle mount`, `Container: main`
 
 Important: `sitelen-layer-plugin` is a **display-layer plugin** for existing toki pona content, not a machine translation system.
 
@@ -194,6 +201,21 @@ createSitelenLayerPlugin({
   }
 }).init();
 ```
+
+## Sitelen Pona Transform MVP Example
+
+```ts
+createSitelenLayerPlugin({
+  container: '#tok-content',
+  defaultLayer: 'sitelen-pona',
+  sitelenPona: {
+    enabled: true,
+    renderStrategy: 'transform'
+  }
+}).init();
+```
+
+`transform` is an MVP token-based conversion path with subset mapping coverage. Unknown tokens stay in latin.
 
 ## Toggle Mount And Labels
 
@@ -260,7 +282,9 @@ Example with stronger specificity:
 }
 ```
 
-`font-only` note: this path is a styling/ligature pipeline. It does not guarantee full latin-to-glyph conversion on every site. Use it as the stable MVP path and tune CSS/font loading first.
+`font-only` note: this path is a styling/ligature pipeline. It does not guarantee full latin-to-glyph conversion on every site.
+
+`transform` note: this path performs token replacement with an MVP subset mapping. It is intentionally partial and not a complete sitelen pona grammar/typesetting engine.
 
 ## SPA / Observer Recommendations
 
@@ -323,6 +347,7 @@ Integration checklist and Next.js header-mount recipe:
 - layer state: `activeLayer`, `modeSource`, `availableLayers`
 - toggle state: `toggleMountMode`, `toggleMountedIn`
 - sitelen pona state: `sitelenPonaFontReady`, `sitelenPonaRenderMode`, `sitelenPonaWarning`
+- sitelen pona transform state: `sitelenPonaReplacementCount`, `sitelenPonaWordTokenCount`, `sitelenPonaCoverageRatio`
 - emoji state: `emojiReplacementCount`, `emojiCoverageRatio`
 - profile state: `profileId`, `matchedProfileId`, `matchedProfileReason`
 - observer state: `observerStats`

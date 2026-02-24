@@ -1,0 +1,35 @@
+// MVP subset mapping for transform strategy.
+// This is intentionally partial and should be expanded in future releases.
+export const SITELEN_PONA_MVP_MAPPING: Record<string, string> = {
+  toki: '⟐',
+  pona: '✧',
+  jan: '☉',
+  mi: '◉',
+  sina: '◎',
+  ona: '◌',
+  li: '∴',
+  e: '∵',
+  la: '∷',
+  pi: '⋮',
+  lon: '•',
+  kama: '➜',
+  tawa: '➠',
+  sona: '⌘',
+  sitelen: '▦',
+  nimi: '✎',
+  ma: '▣',
+  tomo: '⌂',
+  moku: '◍',
+  mute: '☷',
+  lili: '▫',
+  suli: '◼',
+  sin: '✦',
+  ante: '↺',
+  kulupu: '⋯',
+  wile: '⚑',
+  ken: '⟡',
+  awen: '⟢',
+  open: '⟣',
+  pini: '⟤'
+};
+

@@ -47,6 +47,8 @@ export class DebugOverlay {
   update(diagnostics: PluginDiagnostics): void {
     const scorePercent = Math.round(diagnostics.score * 100);
     const emojiCoveragePercent = Math.round(diagnostics.emojiCoverageRatio * 100);
+    const sitelenPonaCoveragePercent =
+      diagnostics.sitelenPonaCoverageRatio === null ? null : Math.round(diagnostics.sitelenPonaCoverageRatio * 100);
     this.content.textContent = [
       `TP score: ${scorePercent}%`,
       `Threshold: ${Math.round(diagnostics.threshold * 100)}%`,
@@ -67,6 +69,8 @@ export class DebugOverlay {
       `Observer mutations: ${diagnostics.observerStats.mutationsObserved}`,
       `Sitelen pona font: ${diagnostics.sitelenPonaFontReady ? 'ready' : 'missing'}`,
       `Sitelen pona render: ${diagnostics.sitelenPonaRenderMode}`,
+      `Sitelen pona replaced: ${diagnostics.sitelenPonaReplacementCount}`,
+      diagnostics.sitelenPonaCoverageRatio === null ? 'Sitelen pona coverage: n/a' : `Sitelen pona coverage: ${sitelenPonaCoveragePercent}%`,
       `Emoji replaced: ${diagnostics.emojiReplacementCount}`,
       `Emoji coverage: ${emojiCoveragePercent}%`,
       diagnostics.sitelenPonaWarning ? `Warning: ${diagnostics.sitelenPonaWarning}` : ''

@@ -233,7 +233,7 @@ describe('plugin dom integration', () => {
     plugin.destroy();
   });
 
-  it('reports sitelen pona render mode in diagnostics', () => {
+  it('applies sitelen pona transform layer and restores latin', () => {
     document.body.innerHTML = `
       <div id="app">
         <p>toki pona li pona tawa mi. jan pona li toki pona.</p>
@@ -242,11 +242,45 @@ describe('plugin dom integration', () => {
 
     const plugin = createSitelenLayerPlugin({
       container: '#app',
+      defaultLayer: 'sitelen-pona',
       sitelenPona: { enabled: true, renderStrategy: 'transform' }
     });
 
     plugin.init();
-    expect(plugin.getDiagnostics().sitelenPonaRenderMode).toBe('transform');
+
+    const paragraph = document.querySelector('#app p') as HTMLParagraphElement;
+    expect(paragraph.textContent).toContain('⟐');
+
+    const diagnostics = plugin.getDiagnostics();
+    expect(diagnostics.sitelenPonaRenderMode).toBe('transform');
+    expect(diagnostics.sitelenPonaReplacementCount).toBeGreaterThan(0);
+    expect(diagnostics.sitelenPonaWordTokenCount).toBeGreaterThan(0);
+    expect(diagnostics.sitelenPonaCoverageRatio).not.toBeNull();
+
+    const latinButton = document.querySelector('button[data-layer="latin"]') as HTMLButtonElement;
+    latinButton.click();
+    expect(paragraph.textContent).toContain('toki pona');
+
+    plugin.destroy();
+  });
+
+  it('keeps font-only path stable and reports no transform coverage', () => {
+    document.body.innerHTML = `
+      <div id="app">
+        <p>toki pona li pona tawa mi. jan pona li toki pona.</p>
+      </div>
+    `;
+
+    const plugin = createSitelenLayerPlugin({
+      container: '#app',
+      sitelenPona: { enabled: true, renderStrategy: 'font-only' }
+    });
+
+    plugin.init();
+    const diagnostics = plugin.getDiagnostics();
+    expect(diagnostics.sitelenPonaRenderMode).toBe('font-only');
+    expect(diagnostics.sitelenPonaCoverageRatio).toBeNull();
+    expect(diagnostics.sitelenPonaReplacementCount).toBe(0);
     plugin.destroy();
   });
 

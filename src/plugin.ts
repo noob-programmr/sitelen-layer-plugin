@@ -4,6 +4,7 @@ import { analyzeTokiPonaDominance } from './detector';
 import { resolveEligibility } from './eligibility';
 import { writeStoredLayer, readStoredLayer } from './storage';
 import { toSitelenEmojiWithStats } from './transformers/emoji';
+import { toSitelenPonaWithStats } from './transformers/sitelenPonaTransform';
 import {
   DEFAULT_SITELEN_PONA_FONT,
   applyContainerLayerClass,
@@ -255,6 +256,8 @@ export class SitelenLayerPlugin {
   private ignoredCandidates = 0;
   private sitelenPonaFontReady = false;
   private sitelenPonaWarning: string | undefined;
+  private sitelenPonaReplacementCount = 0;
+  private sitelenPonaWordTokenCount = 0;
   private toggleMountMode: 'floating' | 'inline' = 'floating';
   private toggleMountedIn: string | undefined;
   private emojiReplacementCount = 0;
@@ -411,6 +414,12 @@ export class SitelenLayerPlugin {
       ignoredCandidates: this.ignoredCandidates,
       sitelenPonaFontReady: this.sitelenPonaFontReady,
       sitelenPonaRenderMode: this.config.sitelenPona.renderStrategy,
+      sitelenPonaReplacementCount: this.config.sitelenPona.renderStrategy === 'transform' ? this.sitelenPonaReplacementCount : 0,
+      sitelenPonaWordTokenCount: this.config.sitelenPona.renderStrategy === 'transform' ? this.sitelenPonaWordTokenCount : 0,
+      sitelenPonaCoverageRatio:
+        this.config.sitelenPona.renderStrategy === 'transform' && this.sitelenPonaWordTokenCount > 0
+          ? this.sitelenPonaReplacementCount / this.sitelenPonaWordTokenCount
+          : null,
       sitelenPonaWarning: this.sitelenPonaWarning,
       toggleMountMode: this.toggleMountMode,
       toggleSize: this.config.toggleSize,
@@ -457,6 +466,12 @@ export class SitelenLayerPlugin {
 
     this.syncTextNodesWithOriginals(this.textNodes, true);
     this.updateEmojiCoverageStats(this.textNodes);
+    if (this.config.sitelenPona.renderStrategy === 'transform') {
+      this.updateSitelenPonaCoverageStats(this.textNodes);
+    } else {
+      this.sitelenPonaReplacementCount = 0;
+      this.sitelenPonaWordTokenCount = 0;
+    }
 
     const textForDetection = this.textNodes.map((node) => this.originalTextMap.get(node) ?? '').join(' ');
     const detectorResult = analyzeTokiPonaDominance(textForDetection, {
@@ -473,6 +488,14 @@ export class SitelenLayerPlugin {
 
     if (this.totalTokens < 8) {
       this.warnDebug('detector has low token count; confidence may be weak');
+    }
+
+    if (
+      this.config.sitelenPona.renderStrategy === 'transform' &&
+      this.sitelenPonaWordTokenCount > 0 &&
+      this.sitelenPonaReplacementCount / this.sitelenPonaWordTokenCount < 0.35
+    ) {
+      this.warnDebug('sitelen-pona transform coverage is low for this container; many tokens are unmapped in MVP subset');
     }
 
     if (this.config.profileId && !this.eligible) {
@@ -651,12 +674,18 @@ export class SitelenLayerPlugin {
   }
 
   private applySitelenPonaTransformLayer(nodes: Text[]): void {
-    // Placeholder hook for transform strategy. Current MVP keeps text unchanged.
-    // Implementations may provide token-to-glyph transform in a future release.
+    this.sitelenPonaReplacementCount = 0;
+    this.sitelenPonaWordTokenCount = 0;
+
     nodes.forEach((node) => {
       const source = this.originalTextMap.get(node);
-      if (typeof source === 'string' && node.nodeValue !== source) {
-        this.setTextNodeValue(node, source);
+      if (typeof source === 'string') {
+        const result = toSitelenPonaWithStats(source);
+        this.sitelenPonaReplacementCount += result.replacedTokens;
+        this.sitelenPonaWordTokenCount += result.wordTokens;
+        if (node.nodeValue !== result.text) {
+          this.setTextNodeValue(node, result.text);
+        }
       }
     });
   }
@@ -698,7 +727,7 @@ export class SitelenLayerPlugin {
         this.warnDebug(this.sitelenPonaWarning);
       } else if (this.config.sitelenPona.renderStrategy === 'transform') {
         this.sitelenPonaWarning =
-          'sitelen-pona transform strategy is an architectural hook in v0.1.x; full token-to-glyph conversion is pending.';
+          'sitelen-pona transform mode is active with MVP subset coverage. Unmapped tokens stay in latin.';
         this.warnDebug(this.sitelenPonaWarning);
       }
     }
@@ -771,6 +800,25 @@ export class SitelenLayerPlugin {
 
     this.emojiReplacementCount = replacedTokens;
     this.emojiWordTokenCount = wordTokens;
+  }
+
+  private updateSitelenPonaCoverageStats(nodes: Text[]): void {
+    let replacedTokens = 0;
+    let wordTokens = 0;
+
+    nodes.forEach((node) => {
+      const source = this.originalTextMap.get(node);
+      if (typeof source !== 'string') {
+        return;
+      }
+
+      const stats = toSitelenPonaWithStats(source);
+      replacedTokens += stats.replacedTokens;
+      wordTokens += stats.wordTokens;
+    });
+
+    this.sitelenPonaReplacementCount = replacedTokens;
+    this.sitelenPonaWordTokenCount = wordTokens;
   }
 
   private startObserving(): void {
@@ -968,9 +1016,38 @@ export class SitelenLayerPlugin {
       }
     }
 
+    if (
+      this.currentLayer === 'sitelen-pona' &&
+      this.config.sitelenPona.renderStrategy === 'transform' &&
+      this.eligible &&
+      updatedCount > 0
+    ) {
+      this.isApplyingLayer = true;
+      try {
+        newNodes.forEach((node) => {
+          const source = this.originalTextMap.get(node);
+          if (typeof source !== 'string') {
+            return;
+          }
+
+          const result = toSitelenPonaWithStats(source);
+          this.sitelenPonaReplacementCount += result.replacedTokens;
+          this.sitelenPonaWordTokenCount += result.wordTokens;
+          if (node.nodeValue !== result.text) {
+            this.setTextNodeValue(node, result.text);
+          }
+        });
+      } finally {
+        this.isApplyingLayer = false;
+      }
+    }
+
     this.observerStats.incrementalUpdates += updatedCount;
     this.lastUpdatedAt = new Date().toISOString();
     this.updateEmojiCoverageStats(this.textNodes);
+    if (this.config.sitelenPona.renderStrategy === 'transform') {
+      this.updateSitelenPonaCoverageStats(this.textNodes);
+    }
 
     const diagnostics = this.getDiagnostics();
     this.config.onDiagnostics?.(diagnostics);

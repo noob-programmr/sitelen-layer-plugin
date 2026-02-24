@@ -129,3 +129,37 @@ Operational defaults:
 - `toggleSize: 'lg'` improves readability for header/nav integrations.
 - `emojiExcludeSelectors` protects nav/header/logo from unnecessary replacement noise.
 - `renderStrategy: 'font-only'` is stable MVP styling path; treat `transform` as future conversion path.
+
+## 9) Deployment Verification (Runtime Fingerprints)
+
+Use these checks on the real deployed `/tp` page to distinguish stale deployment/cache from integration bugs.
+
+In browser console:
+
+```js
+document.querySelector('#sitelen-layer-toggle-mount .slp-toggle')?.className
+```
+
+Expected includes:
+
+- `slp-toggle--size-lg`
+- `slp-toggle--mounted`
+
+```js
+[...document.querySelectorAll('#sitelen-layer-toggle-mount .slp-toggle__btn')].map((b) =>
+  b.textContent?.trim()
+)
+```
+
+Expected:
+
+- `["TP", "SP", "🙂"]`
+
+Overlay expectations:
+
+- `Toggle mode: inline`
+- `Toggle size: lg`
+- `Toggle mount: ...`
+- `Container: main`
+
+If fingerprints are missing, your production deployment most likely still serves an old JS/CSS bundle.

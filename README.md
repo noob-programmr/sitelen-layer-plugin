@@ -301,6 +301,7 @@ If bundler resolution fails in CI, first check your dependency source and that `
 Integration checklist and Next.js header-mount recipe:
 
 - [`docs/INTEGRATION_PLAYBOOK.md`](/Users/antonbiletskiy-volokh/Downloads/Projects/sitelen-layer-plugin/docs/INTEGRATION_PLAYBOOK.md)
+- Includes a `Deployment verification (runtime fingerprints)` section for live `/tp` checks (`slp-toggle--size-lg`, `TP/SP/🙂`, overlay fields, `Container: main`).
 
 ## Key Config (selected)
 

